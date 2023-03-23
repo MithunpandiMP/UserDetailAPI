@@ -41,11 +41,17 @@ namespace UserDetailAPI.DataAccessLayer.Repository.Implementation
                 throw;
             }
         }
-        public async Task<User> GetUserDetailById(int id)
+        public async Task<List<User>> GetUserDetailByName(string name)
         {
             try
             {
-                return await _dBContext.Users.FindAsync(id);
+                var allUsers = await _dBContext.Users.ToListAsync();
+                var searchedUser = allUsers.Where(x => x.Name.Contains(name, StringComparison.OrdinalIgnoreCase)
+                || x.Country.Contains(name, StringComparison.OrdinalIgnoreCase) || x.Address.Contains(name, StringComparison.OrdinalIgnoreCase)).ToList();
+                if (searchedUser.Count == 0)
+                    return allUsers;
+                else
+                    return searchedUser;
             }
             catch (Exception)
             {

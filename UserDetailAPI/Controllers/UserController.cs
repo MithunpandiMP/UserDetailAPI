@@ -41,14 +41,14 @@ namespace UserDetailAPI.Controllers
                 return BadRequest();
             }
         }
-        // GET: UserDetailController/GetUserById/5
-        [HttpGet, Route("GetUserById")]
-        public async Task<ActionResult> GetUser(int id)
+        // GET: UserDetailController/GetUserByName/5
+        [HttpPost, Route("GetUserByName")]
+        public async Task<ActionResult> GetUser([FromBody] UserDetailDTO user)
         {
-            _logger.LogInformation(GetCallMessage(), "GetUserById");
+            _logger.LogInformation(GetCallMessage(), "GetUserByName");
             try
             {
-                var userDetail = await _userDetail.GetUserDetailById(id);
+                var userDetail = await _userDetail.GetUserDetailByName(user.Name);
                 if (userDetail == null)
                 {
                     return NotFound();
@@ -57,7 +57,7 @@ namespace UserDetailAPI.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(GetExceptionMessage(), "GetUserById", ex);
+                _logger.LogError(GetExceptionMessage(), "GetUserByName", ex);
                 return BadRequest();
             }
         }

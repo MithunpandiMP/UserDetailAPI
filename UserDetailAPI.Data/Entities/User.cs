@@ -14,15 +14,15 @@ public partial class User
 
     [StringLength(50)]
     [Unicode(false)]
-    public string? Name { get; set; }
+    public string Name { get; set; }
 
     [StringLength(50)]
     [Unicode(false)]
-    public string? Address { get; set; }
+    public string Address { get; set; }
 
     [StringLength(50)]
     [Unicode(false)]
-    public string? Country { get; set; }
+    public string Country { get; set; }
 
     public long? ZipCode { get; set; }
 

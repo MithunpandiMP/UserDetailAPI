@@ -10,7 +10,7 @@ namespace UserDetailAPI.DataAccessLayer.Repository.Interface
     public interface IUserDetailDataRepositry
     {
         Task<List<User>> GetUserDetail();
-        Task<User> GetUserDetailById(int id);
+        Task<List<User>> GetUserDetailByName(string name);
         Task<User> CreateUser(User userDetail);
         Task<User> UpdateUserDetail(User userDetail);
         Task<bool> DeleteUserDetail(int id);

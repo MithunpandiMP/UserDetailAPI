@@ -68,17 +68,17 @@ namespace UserDetailAPI.BusinessLayer.Implementation
             }
             return userDetailDTO;
         }
-        public async Task<UserDetailDTO> GetUserDetailById(int id)
+        public async Task<List<UserDetailDTO>> GetUserDetailByName(string name)
         {
-            UserDetailDTO userDetailDTO = new();
+            List<UserDetailDTO> userDetailDTO = new();
             try
             {
-                if (id > 0)
+                if (!string.IsNullOrEmpty(name))
                 {
-                    var result = await _userDetailDataRepositry.GetUserDetailById(id);
+                    var result = await _userDetailDataRepositry.GetUserDetailByName(name);
                     if (result != null)
                     {
-                        userDetailDTO = _mapper.Map<UserDetailDTO>(result);
+                        userDetailDTO = _mapper.Map<List<UserDetailDTO>>(result);
                     }
                 }
             }
