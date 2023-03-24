@@ -8,8 +8,8 @@ using UserDetailAPI.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using UserDetailAPI.DataAccessLayer;
 using UserDetailAPI.BusinessLayer.DTO;
-using UserDetailAPI;
 using UserDetailAPI.DataAccessLayer.Entities;
+using UserDetailAPI.CustomMiddleware;
 
 var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
@@ -17,8 +17,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddControllers();
-builder.Services.AddTransient<IUserDetailBusiness, UserDetailBusiness>();
-builder.Services.AddTransient<IUserDetailDataRepositry, UserDetailDataRepositry>();
+builder.Services.AddScoped<IUserDetailBusiness, UserDetailBusiness>();
+builder.Services.AddScoped<IUserDetailDataRepositry, UserDetailDataRepositry>();
 builder.Services.AddAutoMapper(typeof(MapperConfig));
 builder.Services.AddDbContext<UserDetailDbContext>();
 builder.Services.AddCors(p => p.AddPolicy("corsapp", builder =>
@@ -32,6 +32,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+app.UseMiddleware(typeof(ExceptionHandlingMiddleware));
 app.UseHttpsRedirection();
 app.UseRouting();
 app.UseCors("corsapp");

@@ -11,6 +11,7 @@ namespace UserDetailAPI.BusinessLayer.Interface
     {
         Task<List<UserDetailDTO>> GetUserDetail();
         Task<List<UserDetailDTO>> GetUserDetailByName(string name);
+        Task<UserDetailDTO> GetUserDetailById(int id);
         Task<UserDetailDTO> CreateUser(UserDetailDTO userDetail);
         Task<UserDetailDTO> UpdateUserDetail(UserDetailDTO userDetail);
         Task<bool> DeleteUserDetail(int id);

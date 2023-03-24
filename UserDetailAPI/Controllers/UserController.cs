@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using UserDetailAPI.BusinessLayer.DTO;
 using UserDetailAPI.BusinessLayer.Implementation;
 using UserDetailAPI.BusinessLayer.Interface;
+using UserDetailAPI.CustomMiddleware;
 using UserDetailAPI.DataAccessLayer.Entities;
 
 namespace UserDetailAPI.Controllers
@@ -16,117 +17,82 @@ namespace UserDetailAPI.Controllers
         private readonly IUserDetailBusiness _userDetail;
         private readonly ILogger _logger;
         public UserController(IUserDetailBusiness userDetail, ILoggerFactory logger)
-        { 
+        {
             this._userDetail = userDetail;
             this._logger = logger.CreateLogger<UserController>();
         }
 
-        // GET: UserDetailController/GetAllUsers
         [HttpGet, Route("GetAllUsers")]
         public async Task<IActionResult> GetAllUserDetails()
         {
             _logger.LogInformation(GetCallMessage(), "GetAllUsers");
-            try
-            {
-               var userDetails = await _userDetail.GetUserDetail();
-                if(userDetails == null)
-                {
-                    return NotFound();
-                }
-                return Ok(userDetails);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(GetExceptionMessage(), "GetAllUsers", ex);
-                return BadRequest();
-            }
+            return Ok(await _userDetail.GetUserDetail());
         }
-        // GET: UserDetailController/GetUserByName/5
+
         [HttpPost, Route("GetUserByName")]
         public async Task<ActionResult> GetUser([FromBody] UserDetailDTO user)
         {
             _logger.LogInformation(GetCallMessage(), "GetUserByName");
-            try
-            {
-                var userDetail = await _userDetail.GetUserDetailByName(user.Name);
-                if (userDetail == null)
-                {
-                    return NotFound();
-                }
-                return Ok(userDetail);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(GetExceptionMessage(), "GetUserByName", ex);
-                return BadRequest();
-            }
+            if (string.IsNullOrEmpty(user.Name))
+                return BadRequest("User Name or Address or Country required");
+            var userDetail = await _userDetail.GetUserDetailByName(user.Name);
+            return Ok(userDetail);
         }
 
-        // POST: UserDetailController/CreateUser
         [HttpPost, Route("CreateUser")]
         public async Task<ActionResult> CreateUserDetail([FromBody] UserDetailDTO userDetail)
         {
             _logger.LogInformation(GetCallMessage(), "CreateUser");
-            try
-            {
-                var user = await _userDetail.CreateUser(userDetail);
-                if (user is null)
-                {
-                    return NotFound();
-                }
-                return Ok(user);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(GetExceptionMessage(), "CreateUser", ex);
-                return BadRequest();
-            }
+            if (userDetail is null)
+                throw new BadRequestException("User details not correct");
+            return Ok(await _userDetail.CreateUser(userDetail));
         }
-        // GET: UserDetailController/UpdateUser/5
+
         [HttpPut, Route("UpdateUser")]
         public async Task<ActionResult> UpdateUserDetails([FromBody] UserDetailDTO userDetail)
         {
             _logger.LogInformation(GetCallMessage(), "UpdateUser");
-            try
+            if (userDetail is null || userDetail.UserId == 0)
+                throw new BadRequestException("User details not correct");
+            var user = await _userDetail.UpdateUserDetail(userDetail);
+            if (user is null)
+                throw new NotFoundException("User not found");
+            return Ok(user);
+        }
+
+        [HttpDelete, Route("DeleteUser")]
+        public async Task<ActionResult> DeleteUserDetails(int id)
+        {
+            _logger.LogInformation(GetCallMessage(), "DeleteUser");
+            if (id > 0)
             {
-                var user = await _userDetail.UpdateUserDetail(userDetail);
-                if (user is null)
-                {
-                    return NotFound();
-                }
-                return Ok(user);
+                var user = await _userDetail.DeleteUserDetail(id);
+                if (user)
+                    return Ok();
             }
-            catch (Exception ex)
+            else
+                throw new BadRequestException("User id not available");
+            throw new NotFoundException("User not found");
+        }
+
+        [HttpGet, Route("getUserById")]
+        public async Task<ActionResult> getUserById(int id)
+        {
+            _logger.LogInformation(GetCallMessage(), "getUserById");
+            if (id > 0)
             {
-                _logger.LogError(GetExceptionMessage(), "UpdateUser", ex);
-                return BadRequest();
+                var user = await _userDetail.GetUserDetailById(id);
+                if (user is not null)
+                    return Ok(user);
             }
+            else
+                throw new BadRequestException("User id not available");
+            throw new NotFoundException("User not found");
         }
 
         private static string GetCallMessage()
         {
             return "{0} API process is started";
-        }
-        private static string GetExceptionMessage()
-        {
-            return "Exception occured while calling API method is {0}, error message is {1} ";
-        }
-
-        // GET: UserDetailController/DeleteUser/5
-        [HttpDelete, Route("DeleteUser")]
-        public async Task<ActionResult> DeleteUserDetails(int id)
-        {
-            _logger.LogInformation(GetCallMessage(), "DeleteUser");
-            try
-            {
-                var user = await _userDetail.DeleteUserDetail(id);
-                return Ok(user);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(GetExceptionMessage(), "DeleteUser", ex);
-                return BadRequest();
-            }
         }
     }
 }
