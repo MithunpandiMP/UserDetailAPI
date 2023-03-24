@@ -24,67 +24,51 @@ namespace UserDetailAPI.BusinessLayer.Implementation
         public async Task<UserDetailDTO> CreateUser(UserDetailDTO userDetail)
         {
             UserDetailDTO userDetailDTO;
-            try
+            User user = new()
             {
-                if (userDetail is not null)
-                {
-                    User user = new()
-                    {
-                        UserId = userDetail.UserId,
-                        Name = userDetail.Name,
-                        Address = userDetail.Address,
-                        Country = userDetail.Country,
-                        ZipCode = Convert.ToInt32(userDetail.ZipCode),
-                        MobileNo = Convert.ToInt64(userDetail.MobileNo),
-                        CreatedDate = DateTime.Now,
-                    };
-                    var result = await _userDetailDataRepositry.CreateUser(user);
-                    if (result != null)
-                    {
-                        userDetailDTO = _mapper.Map<UserDetailDTO>(result);
-                    }
-                }
-            }
-            catch (Exception)
+                UserId = userDetail.UserId,
+                Name = userDetail.Name,
+                Address = userDetail.Address,
+                Country = userDetail.Country,
+                ZipCode = Convert.ToInt32(userDetail.ZipCode),
+                MobileNo = Convert.ToInt64(userDetail.MobileNo),
+                CreatedDate = DateTime.Now,
+            };
+            var result = await _userDetailDataRepositry.CreateUser(user);
+            if (result != null)
             {
-                throw;
+                userDetailDTO = _mapper.Map<UserDetailDTO>(result);
             }
             return userDetail;
         }
         public async Task<List<UserDetailDTO>> GetUserDetail()
         {
             List<UserDetailDTO> userDetailDTO = new();
-            try
+            var result = await _userDetailDataRepositry.GetUserDetail();
+            if (result != null)
             {
-                var result = await _userDetailDataRepositry.GetUserDetail();
-                if (result != null)
-                {
-                    userDetailDTO = _mapper.Map<List<UserDetailDTO>>(result);
-                }
-            }
-            catch (Exception)
-            {
-                throw;
+                userDetailDTO = _mapper.Map<List<UserDetailDTO>>(result);
             }
             return userDetailDTO;
         }
         public async Task<List<UserDetailDTO>> GetUserDetailByName(string name)
         {
             List<UserDetailDTO> userDetailDTO = new();
-            try
+            var result = await _userDetailDataRepositry.GetUserDetailByName(name);
+            if (result != null)
             {
-                if (!string.IsNullOrEmpty(name))
-                {
-                    var result = await _userDetailDataRepositry.GetUserDetailByName(name);
-                    if (result != null)
-                    {
-                        userDetailDTO = _mapper.Map<List<UserDetailDTO>>(result);
-                    }
-                }
+                userDetailDTO = _mapper.Map<List<UserDetailDTO>>(result);
             }
-            catch (Exception)
+            return userDetailDTO;
+        }
+
+        public async Task<UserDetailDTO> GetUserDetailById(int id)
+        {
+            UserDetailDTO userDetailDTO = new();
+            var result = await _userDetailDataRepositry.GetUserDetailById(id);
+            if (result != null)
             {
-                throw;
+                userDetailDTO = _mapper.Map<UserDetailDTO>(result);
             }
             return userDetailDTO;
         }
@@ -92,46 +76,26 @@ namespace UserDetailAPI.BusinessLayer.Implementation
         public async Task<UserDetailDTO> UpdateUserDetail(UserDetailDTO userDetail)
         {
             UserDetailDTO userDetailDTO = new UserDetailDTO();
-            try
+            User user = new()
             {
-                if (userDetail is not null && userDetail.UserId > 0)
-                {
-                    User user = new()
-                    {
-                        UserId = userDetail.UserId,
-                        Name = userDetail.Name,
-                        Address = userDetail.Address,
-                        Country = userDetail.Country,
-                        ZipCode = Convert.ToInt32(userDetail.ZipCode),
-                        MobileNo = Convert.ToInt64(userDetail.MobileNo),
-                        LastModifiedDate = DateTime.Now,
-                    };
-                    var result = await _userDetailDataRepositry.UpdateUserDetail(user);
-                    if (result != null)
-                    {
-                        userDetailDTO = _mapper.Map<UserDetailDTO>(result);
-                    }
-                }
-            }
-            catch (Exception)
+                UserId = userDetail.UserId,
+                Name = userDetail.Name,
+                Address = userDetail.Address,
+                Country = userDetail.Country,
+                ZipCode = Convert.ToInt32(userDetail.ZipCode),
+                MobileNo = Convert.ToInt64(userDetail.MobileNo),
+                LastModifiedDate = DateTime.Now,
+            };
+            var result = await _userDetailDataRepositry.UpdateUserDetail(user);
+            if (result != null)
             {
-                throw;
+                userDetailDTO = _mapper.Map<UserDetailDTO>(result);
             }
             return userDetailDTO;
         }
         public async Task<bool> DeleteUserDetail(int id)
         {
-            bool isDeleted = false;
-            try
-            {
-                if (id > 0)
-                    isDeleted = await _userDetailDataRepositry.DeleteUserDetail(id);
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-            return isDeleted;
+            return _ = await _userDetailDataRepositry.DeleteUserDetail(id);
         }
 
     }

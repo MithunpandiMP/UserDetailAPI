@@ -17,60 +17,37 @@ namespace UserDetailAPI.DataAccessLayer.Repository.Implementation
             this._dBContext = dBContext;
             this._dBContext.Database.EnsureCreated();
         }
+
         public async Task<User> CreateUser(User userDetail)
         {
-            try
-            {
-                await _dBContext.Users.AddAsync(userDetail);
-                await _dBContext.SaveChangesAsync();
-            }
-            catch (Exception)
-            {
-                throw;
-            }
+            await _dBContext.Users.AddAsync(userDetail);
+            await _dBContext.SaveChangesAsync();
             return userDetail;
         }
+
         public async Task<List<User>> GetUserDetail()
         {
-            try
-            {
-                return await _dBContext.Users.ToListAsync();
-            }
-            catch (Exception)
-            {
-                throw;
-            }
+            return await _dBContext.Users.ToListAsync();
         }
+
         public async Task<List<User>> GetUserDetailByName(string name)
         {
-            try
-            {
-                var allUsers = await _dBContext.Users.ToListAsync();
-                var searchedUser = allUsers.Where(x => x.Name.Contains(name, StringComparison.OrdinalIgnoreCase)
-                || x.Country.Contains(name, StringComparison.OrdinalIgnoreCase) || x.Address.Contains(name, StringComparison.OrdinalIgnoreCase)).ToList();
-                if (searchedUser.Count == 0)
-                    return allUsers;
-                else
-                    return searchedUser;
-            }
-            catch (Exception)
-            {
-                throw;
-            }
+            var allUsers = await _dBContext.Users.ToListAsync();
+            var searchedUser = allUsers.Where(x => x.Name.Contains(name, StringComparison.OrdinalIgnoreCase)
+            || x.Country.Contains(name, StringComparison.OrdinalIgnoreCase) || x.Address.Contains(name, StringComparison.OrdinalIgnoreCase)).ToList();
+            return searchedUser;
+        }
+        public async Task<User> GetUserDetailById(int id)
+        {
+            return await _dBContext.Users.FindAsync(id);
         }
         public async Task<User> UpdateUserDetail(User userDetail)
         {
-            try
-            {
-                    var Obj = _dBContext.Users.Update(userDetail);
-                    var result = await _dBContext.SaveChangesAsync();
-            }
-            catch (Exception)
-            {
-                throw;
-            }
+            var Obj = _dBContext.Users.Update(userDetail);
+            var result = await _dBContext.SaveChangesAsync();
             return userDetail;
         }
+
         public async Task<bool> DeleteUserDetail(int id)
         {
             var user = await _dBContext.Users.FindAsync(id);
@@ -82,5 +59,6 @@ namespace UserDetailAPI.DataAccessLayer.Repository.Implementation
             }
             return false;
         }
+
     }
 }
