@@ -18,34 +18,36 @@ namespace UserDetailAPI.DataAccessLayer.Repository.Implementation
             this._dBContext.Database.EnsureCreated();
         }
 
-        public async Task<User> CreateUser(User userDetail)
+        public async Task<bool> CreateUser(User userDetail)
         {
             await _dBContext.Users.AddAsync(userDetail);
             await _dBContext.SaveChangesAsync();
-            return userDetail;
+            return true;
         }
 
-        public async Task<List<User>> GetUserDetail()
+        public async Task<ICollection<User>> GetUserDetail()
         {
             return await _dBContext.Users.ToListAsync();
         }
 
-        public async Task<List<User>> GetUserDetailByName(string name)
+        public async Task<ICollection<User>> GetUserDetailBySearchText(string name)
         {
             var allUsers = await _dBContext.Users.ToListAsync();
             var searchedUser = allUsers.Where(x => x.Name.Contains(name, StringComparison.OrdinalIgnoreCase)
             || x.Country.Contains(name, StringComparison.OrdinalIgnoreCase) || x.Address.Contains(name, StringComparison.OrdinalIgnoreCase)).ToList();
             return searchedUser;
         }
+
         public async Task<User> GetUserDetailById(int id)
         {
-            return await _dBContext.Users.FindAsync(id);
+            return await _dBContext.Users.FirstAsync(_ => _.UserId.Equals(id));
         }
-        public async Task<User> UpdateUserDetail(User userDetail)
+
+        public async Task<bool> UpdateUserDetail(User userDetail)
         {
-            var Obj = _dBContext.Users.Update(userDetail);
-            var result = await _dBContext.SaveChangesAsync();
-            return userDetail;
+            _dBContext.Users.Update(userDetail);
+            await _dBContext.SaveChangesAsync();
+            return true;
         }
 
         public async Task<bool> DeleteUserDetail(int id)
@@ -53,8 +55,8 @@ namespace UserDetailAPI.DataAccessLayer.Repository.Implementation
             var user = await _dBContext.Users.FindAsync(id);
             if (user is not null)
             {
-                var Obj = _dBContext.Users.Remove(user);
-                var result = await _dBContext.SaveChangesAsync();
+                _ = _dBContext.Users.Remove(user);
+                _ = await _dBContext.SaveChangesAsync();
                 return true;
             }
             return false;

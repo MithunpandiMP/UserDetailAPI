@@ -17,19 +17,15 @@ namespace UserDetailAPI.CustomMiddleware
     public class ExceptionHandlingMiddleware
     {
         private readonly RequestDelegate _next;
-        private readonly ILogger<ExceptionHandlingMiddleware> _logger;
-        public ExceptionHandlingMiddleware(RequestDelegate next, ILogger<ExceptionHandlingMiddleware> logger)
+        public ExceptionHandlingMiddleware(RequestDelegate next)
         {
             _next = next;
-            _logger = logger;   
         }
-
         public async Task Invoke(HttpContext httpContext)
         {
             try
             {
                 await _next(httpContext);
-
             }
             catch (Exception ex)
             {
@@ -37,30 +33,31 @@ namespace UserDetailAPI.CustomMiddleware
                 await HandleExceptionAsync(httpContext, ex);
             }
         }
-        private static  Task HandleExceptionAsync(HttpContext httpContext, Exception exception)
+        private static Task HandleExceptionAsync(HttpContext httpContext, Exception exception)
         {
             HttpStatusCode statusCode;
             var stackTrace = string.Empty;
             string message;
             var exceptionType = exception.GetType();
-            switch(exceptionType) {
+            switch (exceptionType)
+            {
                 //new Pattern Matching implementation in switches in C#7
                 case var type when type == typeof(BadRequestException):
                     statusCode = HttpStatusCode.BadRequest;
                     message = exception.Message;
                     stackTrace = exception.StackTrace;
                     break;
-                    case var type when type == typeof(KeyNotFoundException): 
+                case var type when type == typeof(KeyNotFoundException):
                     statusCode = HttpStatusCode.Unauthorized;
                     message = exception.Message;
                     stackTrace = exception.StackTrace;
                     break;
-                    case var type when type == typeof(UnauthorizedAccessException):
+                case var type when type == typeof(UnauthorizedAccessException):
                     statusCode = HttpStatusCode.Unauthorized;
                     message = exception.Message;
                     stackTrace = exception.StackTrace;
                     break;
-                    case var type when type == typeof(NotFoundException):
+                case var type when type == typeof(NotFoundException):
                     statusCode = HttpStatusCode.NotFound;
                     message = exception.Message;
                     stackTrace = exception.StackTrace;
@@ -71,14 +68,15 @@ namespace UserDetailAPI.CustomMiddleware
                     stackTrace = exception.StackTrace;
                     break;
                 default:
-                    statusCode = HttpStatusCode.InternalServerError; 
+                    statusCode = HttpStatusCode.InternalServerError;
                     message = exception.Message;
                     stackTrace = exception.StackTrace;
                     break;
             }
             var exceptionResult = JsonSerializer.Serialize(new
             {
-                error = message, stackTrace
+                error = message,
+                stackTrace
             });
             httpContext.Response.ContentType = "application/json";
             httpContext.Response.StatusCode = (int)statusCode;

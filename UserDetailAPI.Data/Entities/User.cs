@@ -11,7 +11,6 @@ public partial class User
 {
     [Key]
     public int UserId { get; set; }
-
     [StringLength(50)]
     [Unicode(false)]
     public string Name { get; set; }

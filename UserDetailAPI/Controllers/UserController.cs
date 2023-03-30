@@ -1,12 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using System.Collections.Generic;
+﻿using Microsoft.AspNetCore.Mvc;
 using UserDetailAPI.BusinessLayer.DTO;
-using UserDetailAPI.BusinessLayer.Implementation;
 using UserDetailAPI.BusinessLayer.Interface;
 using UserDetailAPI.CustomMiddleware;
-using UserDetailAPI.DataAccessLayer.Entities;
 
 namespace UserDetailAPI.Controllers
 {
@@ -15,84 +10,74 @@ namespace UserDetailAPI.Controllers
     public class UserController : Controller
     {
         private readonly IUserDetailBusiness _userDetail;
-        private readonly ILogger _logger;
-        public UserController(IUserDetailBusiness userDetail, ILoggerFactory logger)
+        public UserController(IUserDetailBusiness userDetail)
         {
             this._userDetail = userDetail;
-            this._logger = logger.CreateLogger<UserController>();
         }
 
         [HttpGet, Route("GetAllUsers")]
         public async Task<IActionResult> GetAllUserDetails()
         {
-            _logger.LogInformation(GetCallMessage(), "GetAllUsers");
             return Ok(await _userDetail.GetUserDetail());
         }
 
-        [HttpPost, Route("GetUserByName")]
-        public async Task<ActionResult> GetUser([FromBody] UserDetailDTO user)
-        {
-            _logger.LogInformation(GetCallMessage(), "GetUserByName");
-            if (string.IsNullOrEmpty(user.Name))
-                return BadRequest("User Name or Address or Country required");
-            var userDetail = await _userDetail.GetUserDetailByName(user.Name);
+        [HttpPost, Route("SearchUser")]
+        public async Task<IActionResult> SearchUser([FromBody] UserSearchDTO userSearchDTO) { 
+            if (string.IsNullOrEmpty(userSearchDTO.SearchText))
+                return BadRequest("SearchText required");
+            var userDetail = await _userDetail.GetUserDetailBySearchText(userSearchDTO.SearchText);
             return Ok(userDetail);
         }
 
         [HttpPost, Route("CreateUser")]
-        public async Task<ActionResult> CreateUserDetail([FromBody] UserDetailDTO userDetail)
+        public async Task<IActionResult> CreateUserDetail([FromBody] UserDetailDTO userDetail)
         {
-            _logger.LogInformation(GetCallMessage(), "CreateUser");
-            if (userDetail is null)
-                throw new BadRequestException("User details not correct");
-            return Ok(await _userDetail.CreateUser(userDetail));
+            if (ModelState.IsValid && userDetail.UserId == 0)
+                return Ok(await _userDetail.CreateUser(userDetail));
+            else
+                return BadRequest("User details not correct");
         }
 
         [HttpPut, Route("UpdateUser")]
-        public async Task<ActionResult> UpdateUserDetails([FromBody] UserDetailDTO userDetail)
+        public async Task<IActionResult> UpdateUserDetails([FromBody] UserDetailDTO userDetail)
         {
-            _logger.LogInformation(GetCallMessage(), "UpdateUser");
-            if (userDetail is null || userDetail.UserId == 0)
-                throw new BadRequestException("User details not correct");
-            var user = await _userDetail.UpdateUserDetail(userDetail);
-            if (user is null)
-                throw new NotFoundException("User not found");
-            return Ok(user);
+            if (ModelState.IsValid && userDetail.UserId > 0)
+            {
+                var user = await _userDetail.UpdateUserDetail(userDetail);
+                return Ok(user);
+            }
+            else
+                return BadRequest("User details not correct");
         }
 
         [HttpDelete, Route("DeleteUser")]
-        public async Task<ActionResult> DeleteUserDetails(int id)
+        public async Task<IActionResult> DeleteUserDetails(int id)
         {
-            _logger.LogInformation(GetCallMessage(), "DeleteUser");
             if (id > 0)
             {
-                var user = await _userDetail.DeleteUserDetail(id);
-                if (user)
+                bool deleted = await _userDetail.DeleteUserDetail(id);
+                if (deleted)
                     return Ok();
+                else
+                    return NotFound("User not found");
             }
             else
-                throw new BadRequestException("User id not available");
-            throw new NotFoundException("User not found");
+                return BadRequest("User id not available in the request");
         }
 
-        [HttpGet, Route("getUserById")]
-        public async Task<ActionResult> getUserById(int id)
+        [HttpGet, Route("GetUserById")]
+        public async Task<IActionResult> getUserById(int id)
         {
-            _logger.LogInformation(GetCallMessage(), "getUserById");
             if (id > 0)
             {
                 var user = await _userDetail.GetUserDetailById(id);
                 if (user is not null)
                     return Ok(user);
+                else
+                    return NotFound("User not found");
             }
             else
-                throw new BadRequestException("User id not available");
-            throw new NotFoundException("User not found");
-        }
-
-        private static string GetCallMessage()
-        {
-            return "{0} API process is started";
+                return BadRequest("User id not available");
         }
     }
 }

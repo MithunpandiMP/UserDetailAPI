@@ -9,11 +9,11 @@ namespace UserDetailAPI.BusinessLayer.Interface
 {
     public interface IUserDetailBusiness
     {
-        Task<List<UserDetailDTO>> GetUserDetail();
-        Task<List<UserDetailDTO>> GetUserDetailByName(string name);
+        Task<ICollection<UserDetailDTO>> GetUserDetail();
+        Task<ICollection<UserDetailDTO>> GetUserDetailBySearchText(string name);
         Task<UserDetailDTO> GetUserDetailById(int id);
-        Task<UserDetailDTO> CreateUser(UserDetailDTO userDetail);
-        Task<UserDetailDTO> UpdateUserDetail(UserDetailDTO userDetail);
+        Task<bool> CreateUser(UserDetailDTO userDetail);
+        Task<bool> UpdateUserDetail(UserDetailDTO userDetail);
         Task<bool> DeleteUserDetail(int id);
     }
 }
