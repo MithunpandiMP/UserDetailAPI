@@ -11,17 +11,14 @@ namespace UserDetailAPI.CustomMiddleware
     public class APIKeyMiddleware
     {
         private readonly RequestDelegate _next;
-        private readonly ILogger _logger;
         private const string APIKEYNAME = "ApiKey";
-        public APIKeyMiddleware(RequestDelegate next, ILoggerFactory logger)
+        public APIKeyMiddleware(RequestDelegate next)
         {
             _next = next;
-            _logger = logger.CreateLogger("CustomAPIKeyMiddleware"); ;
         }
 
         public async Task InvokeAsync(HttpContext httpContext)
         {
-            _logger.LogInformation("CustomAPIKeyMiddleware is processing..");
             if (!httpContext.Request.Headers.TryGetValue(APIKEYNAME, out var extractedApiKey))
             {
                 throw new UnauthorizedAccessException("Api Key was not provided");
@@ -31,7 +28,8 @@ namespace UserDetailAPI.CustomMiddleware
             {
                 throw new UnauthorizedAccessException("Api Key is not valid");
             }
-            await _next(httpContext);
+            else
+                await _next(httpContext);
         }
     }
 
