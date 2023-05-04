@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using BenchmarkDotNet.Attributes;
+using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
 using UserDetailAPI.BusinessLayer.DTO;
 using UserDetailAPI.BusinessLayer.Interface;
 using UserDetailAPI.CustomMiddleware;
@@ -14,19 +16,57 @@ namespace UserDetailAPI.Controllers
         {
             this._userDetail = userDetail;
         }
-
+        [Benchmark]
         [HttpGet, Route("GetAllUsers")]
         public async Task<IActionResult> GetAllUserDetails()
         {
-            return Ok(await _userDetail.GetUserDetail());
+            var sw = Stopwatch.StartNew();
+            try
+            {
+                return Ok(await _userDetail.GetUserDetail());
+            }
+            finally
+            {
+                sw.Stop();
+                Console.WriteLine($"Took {sw.ElapsedMilliseconds}ms");
+            }
         }
 
         [HttpPost, Route("SearchUser")]
-        public async Task<IActionResult> SearchUser([FromBody] UserSearchDTO userSearchDTO) { 
-            if (string.IsNullOrEmpty(userSearchDTO.SearchText))
-                return BadRequest("SearchText required");
-            var userDetail = await _userDetail.GetUserDetailBySearchText(userSearchDTO.SearchText);
-            return Ok(userDetail);
+        public async Task<IActionResult> SearchUser([FromBody] UserSearchDTO userSearchDTO)
+        {
+            var sw = Stopwatch.StartNew();
+            try
+            {
+                if (string.IsNullOrEmpty(userSearchDTO.SearchText))
+                    return BadRequest("SearchText required");
+                var userDetail = await _userDetail.GetUserDetailBySearchText(userSearchDTO.SearchText);
+                return Ok(userDetail);
+            }
+            finally
+            {
+                sw.Stop();
+                Console.WriteLine($"Took {sw.ElapsedMilliseconds}ms");
+            }
+
+        }
+        [HttpPost, Route("SearchUsers")]
+        public async Task<IActionResult> SearchUsers([FromBody] UserSearchDTO userSearchDTO)
+        {
+
+            var sw = Stopwatch.StartNew();
+            try
+            {
+                if (string.IsNullOrEmpty(userSearchDTO.SearchText))
+                    return BadRequest("SearchText required");
+                var userDetail = await _userDetail.GetUserDetailBySearchTexts(userSearchDTO.SearchText);
+                return Ok(userDetail);
+            }
+            finally
+            {
+                sw.Stop();
+                Console.WriteLine($"Took {sw.ElapsedMilliseconds}ms");
+            }
         }
 
         [HttpPost, Route("CreateUser")]
@@ -35,7 +75,7 @@ namespace UserDetailAPI.Controllers
             if (ModelState.IsValid && userDetail.UserId == 0)
                 return Ok(await _userDetail.CreateUser(userDetail));
             else
-                return BadRequest("User details not correct");
+                return BadRequest("Invalid user details");
         }
 
         [HttpPut, Route("UpdateUser")]

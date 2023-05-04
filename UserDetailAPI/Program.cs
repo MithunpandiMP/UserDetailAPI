@@ -12,9 +12,12 @@ using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using UserDetailAPI.Swagger;
+using BenchmarkDotNet.Running;
+using UserDetailAPI.Benchmark;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("MySqliteConnection");
+//BenchmarkRunner.Run<BenchmarkManager>();
 // Add services to the container.
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(option =>
@@ -73,6 +76,6 @@ app.UseHttpsRedirection();
 app.UseRouting();
 app.UseCors("corsapp");
 app.UseAuthorization();
-app.MapControllers();
+app.MapControllers();   
 app.UseCustomAPIKeyMiddleware();
 app.Run();

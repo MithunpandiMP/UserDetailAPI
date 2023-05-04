@@ -42,6 +42,15 @@ namespace UserDetailAPI.BusinessLayer.Implementation
             else
                 return new List<UserDetailDTO>();
         }
+        public async Task<ICollection<UserDetailDTO>> GetUserDetailBySearchTexts(string name)
+        {
+            List<UserDetailDTO> userDetailDTO = new();
+            var result = await _userDetailDataRepositry.GetUserDetailBySearchTexts(name);
+            if (result.Count > 0)
+                return _mapper.Map<ICollection<UserDetailDTO>>(result);
+            else
+                return new List<UserDetailDTO>();
+        }
 
         public async Task<UserDetailDTO> GetUserDetailById(int id)
         {

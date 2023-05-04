@@ -11,6 +11,8 @@ namespace UserDetailAPI.DataAccessLayer.Repository.Interface
     {
         Task<ICollection<User>> GetUserDetail();
         Task<ICollection<User>> GetUserDetailBySearchText(string name);
+        Task<ICollection<User>> GetUserDetailBySearchTexts(string name);
+
         Task<User> GetUserDetailById(int id);
         Task<bool> CreateUser(User userDetail);
         Task<bool> UpdateUserDetail(User userDetail);

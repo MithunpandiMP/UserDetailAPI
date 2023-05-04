@@ -38,9 +38,20 @@ namespace UserDetailAPI.DataAccessLayer.Repository.Implementation
             return searchedUser;
         }
 
+        public async Task<ICollection<User>> GetUserDetailBySearchTexts(string name)
+        {
+            var searchedUser = await _dBContext.Users
+      .Where(x => EF.Functions.Like(x.Name, $"%{name}%")
+                  || EF.Functions.Like(x.Country, $"%{name}%")
+                  || EF.Functions.Like(x.Address, $"%{name}%"))
+      .ToListAsync();
+            return searchedUser;
+
+        }
+
         public async Task<User> GetUserDetailById(int id)
         {
-            return await _dBContext.Users.FirstAsync(_ => _.UserId.Equals(id));
+            return await _dBContext.Users.FirstAsync(x => x.UserId == id);
         }
 
         public async Task<bool> UpdateUserDetail(User userDetail)
